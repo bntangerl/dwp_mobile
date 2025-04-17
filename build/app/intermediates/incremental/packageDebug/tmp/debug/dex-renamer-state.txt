@@ -1,4 +1,4 @@
-#Fri Mar 14 12:53:00 WIB 2025
+#Thu Apr 17 07:26:41 WIB 2025
 base.0=C\:\\Users\\bintang\\AndroidStudioProjects\\belajar_flutter\\build\\app\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 base.1=C\:\\Users\\bintang\\AndroidStudioProjects\\belajar_flutter\\build\\app\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
 base.2=C\:\\Users\\bintang\\AndroidStudioProjects\\belajar_flutter\\build\\app\\intermediates\\dex\\debug\\mergeProjectDexDebug\\1\\classes.dex

@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'register_page.dart';
+import 'dashboard_page.dart';
 
 class LoginPage extends StatefulWidget {
  @override
@@ -17,32 +19,29 @@ class _LoginPageState extends State<LoginPage>{
         centerTitle: true,
       ),
 
-      body: Padding(
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
 
         child: Form(
 
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
 
             children: [
+              SizedBox(height: 150.0),
               Image.asset(
                 'assets/dwp_polije.png',
                 height: 70,
               ),
               SizedBox(height: 10.0),
 
-              Text(
-                "Masuk ke Akun Anda",
+              Text("Masuk ke Akun Anda",
                 style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.bold
                 ),
               ),
-              
-              SizedBox(height: 50.0),
+              SizedBox(height: 40.0),
 
               TextFormField( 
                 keyboardType: TextInputType.emailAddress,
@@ -74,7 +73,11 @@ class _LoginPageState extends State<LoginPage>{
               SizedBox(height: 20.0),
 
               ElevatedButton(
-                onPressed: (){},
+                onPressed: (){
+                  Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => DashboardPage())
+                  );
+                },
                 child: Text('Login'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
@@ -95,7 +98,8 @@ class _LoginPageState extends State<LoginPage>{
                         color: Colors.orange,
                         fontWeight: FontWeight.bold),
                         recognizer: TapGestureRecognizer()..onTap = (){
-                          print('Akan berpindah ke halaman register');
+                          Navigator.push(
+                            context, MaterialPageRoute(builder: (context) => RegisterPage()));
                         },
                     ),
                   ],

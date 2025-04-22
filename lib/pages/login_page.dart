@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'register_page.dart';
-import 'dashboard_page.dart';
+import 'daftar_penerima.dart';
 
 class LoginPage extends StatefulWidget {
  @override
@@ -75,7 +75,7 @@ class _LoginPageState extends State<LoginPage>{
               ElevatedButton(
                 onPressed: (){
                   Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => DashboardPage())
+                    context, MaterialPageRoute(builder: (context) => DaftarPenerima())
                   );
                 },
                 child: Text('Login'),

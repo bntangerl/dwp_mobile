@@ -1,4 +1,4 @@
-import 'package:belajar_flutter/pages/dashboard_page.dart';
+import 'package:belajar_flutter/pages/daftar_penerima.dart';
 import 'package:belajar_flutter/pages/minuman_page.dart';
 import 'package:belajar_flutter/pages/makanan_page.dart';
 import 'package:belajar_flutter/pages/halaman_3_page.dart';
@@ -37,7 +37,7 @@ class _MainDrawerState extends State<MainDrawer> {
                 ),
                 onTap: (){
                   Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (context) => DashboardPage()));
+                    context, MaterialPageRoute(builder: (context) => DaftarPenerima()));
                 },
             ),
 

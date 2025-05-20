@@ -1,7 +1,6 @@
 import 'package:belajar_flutter/pages/daftar_penerima.dart';
-import 'package:belajar_flutter/pages/minuman_page.dart';
-import 'package:belajar_flutter/pages/makanan_page.dart';
-import 'package:belajar_flutter/pages/halaman_3_page.dart';
+import 'package:belajar_flutter/pages/pengambilan_barang.dart';
+import 'package:belajar_flutter/pages/validasi_penerima.dart';
 import 'package:flutter/material.dart';
 import 'package:heroicons/heroicons.dart';
 
@@ -37,20 +36,7 @@ class _MainDrawerState extends State<MainDrawer> {
                 ),
                 onTap: (){
                   Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (context) => DaftarPenerima()));
-                },
-            ),
-
-            ListTile(
-              leading: 
-              HeroIcon(
-                HeroIcons.documentText,
-                color: Colors.white),
-                title: Text('Verifikasi Pembayaran',
-                style: TextStyle(color: Colors.white),
-                ),
-                onTap: (){
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MakananPage()));
+                    context, MaterialPageRoute(builder: (context) => DaftarPenerimaPage()));
                 },
             ),
 
@@ -63,7 +49,7 @@ class _MainDrawerState extends State<MainDrawer> {
                 style: TextStyle(color: Colors.white),
                 ),
                 onTap: (){
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MinumanPage()));
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ValidasiPenerimaPage()));
                 }
             ),
 
@@ -75,41 +61,9 @@ class _MainDrawerState extends State<MainDrawer> {
                 style: TextStyle(color: Colors.white),
                 ),
                 onTap: (){
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Halaman3Page()));
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => PengambilanBarangPage()));
                 },
             ),
-
-            ListTile(
-              leading: 
-              HeroIcon(HeroIcons.academicCap, color: Colors.white),
-              title: Text('Unit/Jurusan',
-              style: TextStyle(color: Colors.white),
-              ),
-            ),
-
-            ListTile(
-              leading: 
-              HeroIcon(HeroIcons.briefcase, color: Colors.white),
-              title: Text('Jabatan',
-              style: TextStyle(color: Colors.white),
-              ),
-            ),
-
-            ListTile(
-              leading: 
-              HeroIcon(HeroIcons.shieldCheck, color: Colors.white),
-              title: Text('Peran', 
-              style: TextStyle(color: Colors.white), 
-              ),
-            ),
-
-            ListTile(
-              leading: HeroIcon(
-                HeroIcons.userCircle, color: Colors.white),
-              title: Text('Akun', 
-              style: TextStyle(color: Colors.white),
-              ),
-            )
           ],
         ),
     );

@@ -1,317 +1,276 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:belajar_flutter/drawer/main_drawer.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:belajar_flutter/models/daftar_penerima.dart';
 
-class DaftarPenerima extends StatefulWidget {
-  _DaftarPenerimaState createState() => _DaftarPenerimaState();
+class DaftarPenerimaPage extends StatefulWidget {
+  @override
+  _DaftarPenerimaPageState createState() => _DaftarPenerimaPageState();
 }
 
-class _DaftarPenerimaState extends State<DaftarPenerima> {
-  // Data untuk tabel
-  final List<Map<String, String>> dataPenerima = [
-    {
-      'nip': '25317236112',
-      'nama': 'Rifky Tahir',
-      'jurusan': 'Manajemen Informatika',
-      'jabatan': 'Dosen',
-    },
-    {
-      'nip': '25317126123',
-      'nama': 'Zaidan Setyawan',
-      'jurusan': 'Manajemen Informatika',
-      'jabatan': 'Dosen',
-    },
-    {
-      'nip': '25314246112',
-      'nama': 'Anas Wijaya',
-      'jurusan': 'Bisnis Digital',
-      'jabatan': 'Dosen',
-    },
-    {
-      'nip': '25464746112',
-      'nama': 'Andi Bogard',
-      'jurusan': 'Kesehatan',
-      'jabatan': 'Dosen',
-    },
-    {
-      'nip': '62362832212',
-      'nama': 'Srikaya Sriwijaya',
-      'jurusan': 'Teknik Informatika',
-      'jabatan': 'Dosen',
-    },
-  ];
+class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
+
+  List<Penerima> penerimaList = [];
+  List<Penerima> filteredList = [];
+
+  TextEditingController searchController = TextEditingController();
+
+  final TextEditingController namaController = TextEditingController();
+  final TextEditingController nikController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController noTelponController = TextEditingController();
+  final TextEditingController namaJurusanController = TextEditingController();
+  final TextEditingController jabatanController = TextEditingController();
+
+  bool isLoading = true;
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPenerima();
+  }
+
+  Future<void> fetchPenerima() async {
+    final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/penerimas'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      List<Penerima> dataDariApi = List<Penerima>.from(
+        data.map((json) => Penerima.fromJson(json)),
+      );
+
+      setState(() {
+        penerimaList = dataDariApi;
+        filteredList = dataDariApi; // <- Ini dia ditempatkan di sini
+        isLoading = false;
+      });
+    } else {
+      throw Exception('Gagal memuat data');
+    }
+  }
+
+  Future<void> deletePenerima(int id) async {
+    final url = Uri.parse('http://10.0.2.2:8000/api/penerimas/$id'); // Ganti dengan URL server-mu
+
+    final response = await http.delete(url);
+
+    if (response.statusCode == 200) {
+      print('Data berhasil dihapus');
+    } else {
+      print('Gagal menghapus data: ${response.body}');
+    }
+  }
+
+   void _showEditDialog(Penerima penerima, int index) {
+    // Isi controller dengan data saat dialog akan ditampilkan
+    namaController.text = penerima.nama;
+    nikController.text = penerima.nik;
+    emailController.text = penerima.email;
+    noTelponController.text = penerima.noTelpon;
+    namaJurusanController.text = penerima.namaJurusan;
+    jabatanController.text = penerima.jabatan;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Edit Data Penerima',style: TextStyle(fontFamily: 'Poppins'),),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: namaController, decoration: InputDecoration(labelText: 'Nama', labelStyle: TextStyle(fontFamily: 'Poppins'))),
+              TextField(controller: nikController, decoration: InputDecoration(labelText: 'NIK', labelStyle: TextStyle(fontFamily: 'Poppins'))),
+              TextField(controller: emailController, decoration: InputDecoration(labelText: 'Email', labelStyle: TextStyle(fontFamily: 'Poppins'))),
+              TextField(controller: noTelponController, decoration: InputDecoration(labelText: 'No Telepon', labelStyle: TextStyle(fontFamily: 'Poppins'))),
+              TextField(controller: namaJurusanController, decoration: InputDecoration(labelText: 'Nama Jurusan', labelStyle: TextStyle(fontFamily: 'Poppins'))),
+              TextField(controller: jabatanController, decoration: InputDecoration(labelText: 'Jabatan', labelStyle: TextStyle(fontFamily: 'Poppins'))),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Batal', style: TextStyle(fontFamily: 'Poppins'))),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                filteredList[index] = Penerima(
+                  id: penerima.id,
+                  nik: nikController.text,
+                  nama: namaController.text,
+                  email: emailController.text,
+                  noTelpon: noTelponController.text,
+                  jurusanId: penerima.jurusanId,
+                  namaJurusan: namaJurusanController.text,
+                  jabatanId: penerima.jabatanId,
+                  jabatan: jabatanController.text,
+                );
+                // Update juga di penerimaList asli jika perlu
+                int originalIndex = penerimaList.indexWhere((p) => p.id == penerima.id);
+                if (originalIndex != -1) {
+                  penerimaList[originalIndex] = filteredList[index];
+                }
+              });
+              Navigator.of(context).pop();
+            },
+            child: Text('Simpan', style: TextStyle(fontFamily: 'Poppins')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void filterSearchResults(String query) {
+  List<Penerima> dummySearchList = [];
+  dummySearchList.addAll(penerimaList);
+
+  if (query.isNotEmpty) {
+    List<Penerima> dummyListData = dummySearchList.where((item) {
+      return item.nama.toLowerCase().contains(query.toLowerCase()) ||
+             item.nik.toLowerCase().contains(query.toLowerCase()) ||
+             item.jabatan.toLowerCase().contains(query.toLowerCase()) ||
+             item.namaJurusan.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+    setState(() {
+        filteredList = dummyListData;
+      });
+    } else {
+      setState(() {
+        filteredList = penerimaList;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 21, 21, 21),
+      drawer: MainDrawer(),
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: const Color.fromARGB(255, 21, 21, 21),
-        title: Text('Daftar Penerima', style: TextStyle(color: Colors.white)),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Daftar Penerima', 
+            style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+          ],
+        ),
       ),
-      drawer: MainDrawer(),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: Align(
-                  alignment: Alignment.centerRight,
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            // Search & Buat
+            Row(
+              children: [
+                Expanded(
                   child: Container(
-                    width: 100,
-                    height: 40,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 255, 174, 0),
-                        minimumSize: Size(100, 20),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[850],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: filterSearchResults,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Cari',
+                        hintStyle: TextStyle(color: Colors.grey),
+                        border: InputBorder.none,
+                        icon: Icon(Icons.search, color: Colors.orange),
                       ),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            final TextEditingController namaController =
-                                TextEditingController();
-                            final TextEditingController jurusanController =
-                                TextEditingController();
-
-                            return AlertDialog(
-                              backgroundColor: Color.fromARGB(255, 30, 30, 30),
-                              title: Text(
-                                'Form Penerima',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () {},
+                  child: Text('Buat', style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            // Daftar Penerima
+            isLoading
+                ? CircularProgressIndicator()
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: filteredList.length,
+                      itemBuilder: (context, index) {
+                        final penerima = filteredList[index];
+                        return Container(
+                          margin: EdgeInsets.only(bottom: 12),
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 33, 33, 33),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("NAMA            : ${penerima.nama}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                              Text("NIP/NIK/NIPPK   : ${penerima.nik}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                              Text("UNIT/JURUSAN    : ${penerima.jabatan}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                              Text("JURUSAN         : ${penerima.namaJurusan}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                              SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  TextField(
-                                    controller: namaController,
-                                    style: TextStyle(color: Colors.white),
-                                    decoration: InputDecoration(
-                                      labelText: 'Nama',
-                                      labelStyle: TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                      enabledBorder: UnderlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: Colors.white,
+                                  ElevatedButton(
+                                    child: Text('Hapus', style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red),
+                                      onPressed: () async {
+                                      final confirm = await showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text('Konfirmasi', style: TextStyle(fontFamily: 'Poppins')),
+                                          content: Text('Apakah Anda yakin ingin menghapus data ini?', style: TextStyle(fontFamily: 'Poppins')),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.of(context).pop(false),
+                                              child: Text('Batal', style: TextStyle(fontFamily: 'Poppins')),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => Navigator.of(context).pop(true),
+                                              child: Text('Hapus', style: TextStyle(fontFamily: 'Poppins')),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                    ),
+                                      );
+                                      if (confirm == true) {
+                                        await deletePenerima(penerima.id);
+                                        setState(() {
+                                          filteredList.removeAt(index);
+                                        });
+                                      }
+                                    },
                                   ),
-                                  SizedBox(height: 10),
-                                  TextField(
-                                    controller: jurusanController,
-                                    style: TextStyle(color: Colors.white),
-                                    decoration: InputDecoration(
-                                      labelText: 'Jurusan',
-                                      labelStyle: TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                      enabledBorder: UnderlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
+                                  SizedBox(width: 10),
+                                  ElevatedButton(
+                                    child: Text('Edit', style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.orange),
+                                      onPressed: () {
+                                      _showEditDialog(penerima, index);
+                                    },                                    
                                   ),
                                 ],
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: Text('Batal'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    print("Nama: ${namaController.text}");
-                                    print("Jurusan: ${jurusanController.text}");
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Text('Simpan'),
-                                ),
-                              ],
-                            );
-                          },
+                              )
+                            ],
+                          ),
                         );
                       },
-                      child: Text(
-                        'Tambah',
-                        style: TextStyle(
-                          fontSize: 14, 
-                          color: Colors.white
-                          ),
-                      ),
                     ),
                   ),
-                ),
-              ),
-
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade800),
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Header tabel
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade800,
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(12.0),
-                                topRight: Radius.circular(12.0),
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12.0,
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 3,
-                                    child: Center(
-                                      child: Text(
-                                        'NIP/NIK/PPPK',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Center(
-                                      child: Text(
-                                        'Nama',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Center(
-                                      child: Text(
-                                        'Jurusan',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Center(
-                                      child: Text(
-                                        'Jabatan',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-
-                          // Baris-baris data
-                          for (int i = 0; i < dataPenerima.length; i++)
-                            Container(
-                              decoration: BoxDecoration(
-                                color:
-                                    i % 2 == 0
-                                        ? Color.fromARGB(255, 40, 40, 40)
-                                        : Color.fromARGB(255, 35, 35, 35),
-                                // Membuat sudut melengkung pada baris terakhir
-                                borderRadius:
-                                    i == dataPenerima.length - 1
-                                        ? BorderRadius.only(
-                                          bottomLeft: Radius.circular(8.0),
-                                          bottomRight: Radius.circular(8.0),
-                                        )
-                                        : null,
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12.0,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 3,
-                                      child: Center(
-                                        child: Text(
-                                          textAlign: TextAlign.center,
-                                          dataPenerima[i]['nip'] ?? '',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 3,
-                                      child: Center(
-                                        child: Text(
-                                          textAlign: TextAlign.center,
-                                          dataPenerima[i]['nama'] ?? '',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 3,
-                                      child: Center(
-                                        child: Text(
-                                          textAlign: TextAlign.center,
-                                          dataPenerima[i]['jurusan'] ?? '',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 2,
-                                      child: Center(
-                                        child: Text(
-                                          textAlign: TextAlign.center,
-                                          dataPenerima[i]['jabatan'] ?? '',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          ],
         ),
       ),
     );

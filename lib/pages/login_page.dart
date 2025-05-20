@@ -75,7 +75,7 @@ class _LoginPageState extends State<LoginPage>{
               ElevatedButton(
                 onPressed: (){
                   Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => DaftarPenerima())
+                    context, MaterialPageRoute(builder: (context) => DaftarPenerimaPage())
                   );
                 },
                 child: Text('Login'),

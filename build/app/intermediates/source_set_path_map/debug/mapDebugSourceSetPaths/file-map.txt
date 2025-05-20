@@ -18,10 +18,10 @@ com.example.belajar_flutter.app-jetified-savedstate-1.2.1-16 C:\Users\bintang\.g
 com.example.belajar_flutter.app-core-1.13.1-17 C:\Users\bintang\.gradle\caches\8.10.2\transforms\dfc2fbca530748e569b0737b09fa016f\transformed\core-1.13.1\res
 com.example.belajar_flutter.app-jetified-core-ktx-1.13.1-18 C:\Users\bintang\.gradle\caches\8.10.2\transforms\e3f2b050ee295e3aa25c0b40346b22e9\transformed\jetified-core-ktx-1.13.1\res
 com.example.belajar_flutter.app-jetified-startup-runtime-1.1.1-19 C:\Users\bintang\.gradle\caches\8.10.2\transforms\ffafe5f631203f4924364ba072ee19e0\transformed\jetified-startup-runtime-1.1.1\res
-com.example.belajar_flutter.app-debug-20 C:\Users\bintang\AndroidStudioProjects\belajar_flutter\android\app\src\debug\res
-com.example.belajar_flutter.app-main-21 C:\Users\bintang\AndroidStudioProjects\belajar_flutter\android\app\src\main\res
-com.example.belajar_flutter.app-pngs-22 C:\Users\bintang\AndroidStudioProjects\belajar_flutter\build\app\generated\res\pngs\debug
-com.example.belajar_flutter.app-resValues-23 C:\Users\bintang\AndroidStudioProjects\belajar_flutter\build\app\generated\res\resValues\debug
-com.example.belajar_flutter.app-packageDebugResources-24 C:\Users\bintang\AndroidStudioProjects\belajar_flutter\build\app\intermediates\incremental\debug\packageDebugResources\merged.dir
-com.example.belajar_flutter.app-packageDebugResources-25 C:\Users\bintang\AndroidStudioProjects\belajar_flutter\build\app\intermediates\incremental\debug\packageDebugResources\stripped.dir
-com.example.belajar_flutter.app-debug-26 C:\Users\bintang\AndroidStudioProjects\belajar_flutter\build\app\intermediates\merged_res\debug\mergeDebugResources
+com.example.belajar_flutter.app-debug-20 C:\laragon\www\belajar_flutter\android\app\src\debug\res
+com.example.belajar_flutter.app-main-21 C:\laragon\www\belajar_flutter\android\app\src\main\res
+com.example.belajar_flutter.app-pngs-22 C:\laragon\www\belajar_flutter\build\app\generated\res\pngs\debug
+com.example.belajar_flutter.app-resValues-23 C:\laragon\www\belajar_flutter\build\app\generated\res\resValues\debug
+com.example.belajar_flutter.app-packageDebugResources-24 C:\laragon\www\belajar_flutter\build\app\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.example.belajar_flutter.app-packageDebugResources-25 C:\laragon\www\belajar_flutter\build\app\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.example.belajar_flutter.app-debug-26 C:\laragon\www\belajar_flutter\build\app\intermediates\merged_res\debug\mergeDebugResources

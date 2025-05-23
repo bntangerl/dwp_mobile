@@ -1,8 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
-import 'register_page.dart';
 import 'daftar_penerima.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+
 
 class LoginPage extends StatefulWidget {
  @override
@@ -10,6 +12,54 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage>{
+  final TextEditingController emailController = TextEditingController(); 
+  final TextEditingController passwordController = TextEditingController(); 
+  bool isLoading = false; 
+
+  Future<void> login() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Email dan Password wajib diisi')),
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    final response = await http.post(
+      Uri.parse('http://10.0.2.2:8000/api/login'), // Ganti IP jika pakai device
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'password': password}),
+    );
+
+    setState(() => isLoading = false);
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200 && data['status'] == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(data['message'] ?? 'Login berhasil'),
+        duration: Duration(seconds: 2),
+       )
+      );
+
+        await Future.delayed(Duration(seconds: 1));
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => DaftarPenerimaPage()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(data['message'] ?? 'Login gagal')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +93,8 @@ class _LoginPageState extends State<LoginPage>{
               ),
               SizedBox(height: 40.0),
 
-              TextFormField( 
+              TextFormField(
+                controller: emailController, 
                 keyboardType: TextInputType.emailAddress,
                 style: TextStyle(color: const Color.fromARGB(255, 160, 160, 160)),
                 decoration: InputDecoration(
@@ -57,6 +108,7 @@ class _LoginPageState extends State<LoginPage>{
               SizedBox(height: 20.0),
 
               TextFormField(
+                controller: passwordController,
                 obscureText: true,
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
@@ -73,11 +125,7 @@ class _LoginPageState extends State<LoginPage>{
               SizedBox(height: 20.0),
 
               ElevatedButton(
-                onPressed: (){
-                  Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => DaftarPenerimaPage())
-                  );
-                },
+                onPressed: login,
                 child: Text('Login'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
@@ -86,25 +134,6 @@ class _LoginPageState extends State<LoginPage>{
                 ),
               ),
               SizedBox(height: 20.0),
-
-              RichText(
-                text: TextSpan(
-                  text: 'Belum punya akun? ',
-                  style: TextStyle(color: Colors.white),
-                  children: [
-                    TextSpan(
-                      text: "Register",
-                      style: TextStyle(
-                        color: Colors.orange,
-                        fontWeight: FontWeight.bold),
-                        recognizer: TapGestureRecognizer()..onTap = (){
-                          Navigator.push(
-                            context, MaterialPageRoute(builder: (context) => RegisterPage()));
-                        },
-                    ),
-                  ],
-              ),
-              ),
             ],
           ), 
         ),

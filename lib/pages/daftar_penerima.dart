@@ -64,7 +64,66 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
     }
   }
 
-   void _showEditDialog(Penerima penerima, int index) {
+  void addFormDialog(BuildContext context) {
+  // Clear dulu supaya form kosong untuk tambah data baru
+    namaController.clear();
+    nikController.clear();
+    emailController.clear();
+    noTelponController.clear();
+    namaJurusanController.clear();
+    jabatanController.clear();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Tambah Data Penerima', style: TextStyle(fontFamily: 'Poppins', fontSize: 18),),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: namaController, decoration: InputDecoration(labelText: 'Nama', labelStyle: TextStyle(fontFamily: 'Poppins'))),
+              TextField(controller: nikController, decoration: InputDecoration(labelText: 'NIK', labelStyle: TextStyle(fontFamily: 'Poppins'))),
+              TextField(controller: emailController, decoration: InputDecoration(labelText: 'Email', labelStyle: TextStyle(fontFamily: 'Poppins'))),
+              TextField(controller: noTelponController, decoration: InputDecoration(labelText: 'No Telepon', labelStyle: TextStyle(fontFamily: 'Poppins'))),
+              TextField(controller: namaJurusanController, decoration: InputDecoration(labelText: 'Nama Jurusan', labelStyle: TextStyle(fontFamily: 'Poppins'))),
+              TextField(controller: jabatanController, decoration: InputDecoration(labelText: 'Jabatan', labelStyle: TextStyle(fontFamily: 'Poppins'))),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Batal', style: TextStyle(fontFamily: 'Poppins')),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                // Tambah data baru ke list, contoh generate id sementara dengan timestamp
+                Penerima newPenerima = Penerima(
+                  id: DateTime.now().millisecondsSinceEpoch,
+                  nik: nikController.text,
+                  nama: namaController.text,
+                  email: emailController.text,
+                  noTelpon: noTelponController.text,
+                  jurusanId: 0, // bisa disesuaikan jika ada input jurusanId
+                  namaJurusan: namaJurusanController.text,
+                  jabatanId: 0, // bisa disesuaikan juga
+                  jabatan: jabatanController.text,
+                );
+                penerimaList.add(newPenerima);
+                filteredList.add(newPenerima);
+              });
+              Navigator.of(context).pop();
+            },
+            child: Text('Simpan', style: TextStyle(fontFamily: 'Poppins')),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+  void _showEditDialog(Penerima penerima, int index) {
     // Isi controller dengan data saat dialog akan ditampilkan
     namaController.text = penerima.nama;
     nikController.text = penerima.nik;
@@ -188,11 +247,13 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                 ),
                 SizedBox(width: 10),
                 ElevatedButton(
-                  onPressed: () {},
                   child: Text('Buat', style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
                   ),
+                  onPressed: () {
+                    addFormDialog(context);
+                  },
                 ),
               ],
             ),
@@ -249,6 +310,7 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                                         await deletePenerima(penerima.id);
                                         setState(() {
                                           filteredList.removeAt(index);
+                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Data berhasil dihapus')));
                                         });
                                       }
                                     },

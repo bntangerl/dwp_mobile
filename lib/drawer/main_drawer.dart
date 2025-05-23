@@ -1,4 +1,5 @@
 import 'package:belajar_flutter/pages/daftar_penerima.dart';
+import 'package:belajar_flutter/pages/login_page.dart';
 import 'package:belajar_flutter/pages/pengambilan_barang.dart';
 import 'package:belajar_flutter/pages/validasi_penerima.dart';
 import 'package:flutter/material.dart';
@@ -62,6 +63,39 @@ class _MainDrawerState extends State<MainDrawer> {
                 ),
                 onTap: (){
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => PengambilanBarangPage()));
+                },
+            ),
+
+            ListTile(
+              leading:
+              HeroIcon(
+                HeroIcons.arrowLeftEndOnRectangle, color: Colors.white),
+                title: Text('Log Out',
+                style: TextStyle(color: Colors.white),
+                ),
+                onTap: (){
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text('Konfirmasi'),
+                      content: Text('Apakah Anda yakin ingin keluar?'),
+                      actions: [
+                        TextButton(
+                          child: Text('Batal'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        TextButton(
+                          child: Text('Ya'),
+                          onPressed: () {
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                            // Logika untuk logout
+                          },
+                        ),
+                      ],
+                    ),
+                  );
                 },
             ),
           ],

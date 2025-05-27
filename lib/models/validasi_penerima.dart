@@ -1,4 +1,5 @@
 class ValidasiPenerima {
+  final int id;
   final String nik;
   final String nama;
   final String email;
@@ -8,6 +9,7 @@ class ValidasiPenerima {
   final String status;
 
   ValidasiPenerima({
+    required this.id,
     required this.nik,
     required this.nama,
     required this.email,
@@ -19,6 +21,7 @@ class ValidasiPenerima {
 
   factory ValidasiPenerima.fromJson(Map<String, dynamic> json) {
     return ValidasiPenerima(
+      id: json['id'],
       nik: json['nik'],
       nama: json['nama'],
       email: json['email'],

@@ -12,5 +12,5 @@ class Jurusan {
   }
 
   @override
-  String toString() => namaJurusan;
+  String toString() => namaJurusan; 
 }

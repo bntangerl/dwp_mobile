@@ -1,4 +1,5 @@
 class PengambilanBarang {
+  final int id;  // tambahan id
   final String nik;
   final String nama;
   final String email;
@@ -8,6 +9,7 @@ class PengambilanBarang {
   final String statusPengambilan;
 
   PengambilanBarang({
+    required this.id,       // wajib diisi
     required this.nik,
     required this.nama,
     required this.email,
@@ -19,6 +21,7 @@ class PengambilanBarang {
 
   factory PengambilanBarang.fromJson(Map<String, dynamic> json) {
     return PengambilanBarang(
+      id: json['id'],  // ambil id dari json
       nik: json['nik'],
       nama: json['nama'],
       email: json['email'],

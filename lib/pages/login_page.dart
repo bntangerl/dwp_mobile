@@ -43,6 +43,7 @@ class _LoginPageState extends State<LoginPage>{
       ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(data['message'] ?? 'Login berhasil'),
+        backgroundColor: Colors.green,
         duration: Duration(seconds: 2),
        )
       );
@@ -88,7 +89,8 @@ class _LoginPageState extends State<LoginPage>{
                 style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
-                fontWeight: FontWeight.bold
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins'
                 ),
               ),
               SizedBox(height: 40.0),
@@ -99,9 +101,9 @@ class _LoginPageState extends State<LoginPage>{
                 style: TextStyle(color: const Color.fromARGB(255, 160, 160, 160)),
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  labelStyle: TextStyle(color: const Color.fromARGB(255, 160, 160, 160)),
+                  labelStyle: TextStyle(color: const Color.fromARGB(255, 160, 160, 160), fontFamily: 'Poppins'),
                   hintText: 'Masukkan Email',
-                  hintStyle: TextStyle(color: const Color.fromARGB(255, 160, 160, 160)),
+                  hintStyle: TextStyle(color: const Color.fromARGB(255, 160, 160, 160), fontFamily: 'Poppins'),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0),),
                 ),
               ),
@@ -113,9 +115,9 @@ class _LoginPageState extends State<LoginPage>{
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  labelStyle: TextStyle(color: const Color.fromARGB(255, 160, 160, 160)),
+                  labelStyle: TextStyle(color: const Color.fromARGB(255, 160, 160, 160), fontFamily: 'Poppins'),
                   hintText: 'Masukkan Password',
-                  hintStyle: TextStyle(color: const Color.fromARGB(255, 160, 160, 160)),
+                  hintStyle: TextStyle(color: const Color.fromARGB(255, 160, 160, 160), fontFamily: 'Poppins'),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20.0),
                     borderSide: BorderSide(color: const Color.fromARGB(255, 96, 96, 96))
@@ -126,7 +128,7 @@ class _LoginPageState extends State<LoginPage>{
 
               ElevatedButton(
                 onPressed: login,
-                child: Text('Login'),
+                child: Text('Login', style: TextStyle(fontFamily: 'Poppins'),),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,

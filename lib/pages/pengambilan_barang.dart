@@ -49,32 +49,49 @@ class _PengambilanBarangPageState extends State<PengambilanBarangPage>{
       throw Exception('Gagal memuat data');
     }
   }
-
   
   void filterSearchResults(String query) {
-  List<PengambilanBarang> dummySearchList = [];
-  dummySearchList.addAll(pengambilanList);
+    List<PengambilanBarang> dummySearchList = [];
+    dummySearchList.addAll(pengambilanList);
 
-  if (query.isNotEmpty) {
-    List<PengambilanBarang> dummyListData = dummySearchList.where((item) {
-      return item.nik.toLowerCase().contains(query.toLowerCase()) ||
-             item.nama.toLowerCase().contains(query.toLowerCase()) ||
-             item.email.toLowerCase().contains(query.toLowerCase()) ||
-             item.noTelpon.toLowerCase().contains(query.toLowerCase()) ||
-             item.meja.toLowerCase().contains(query.toLowerCase()) ||
-             item.barcode.toLowerCase().contains(query.toLowerCase()) ||
-             item.statusPengambilan.toLowerCase().contains(query.toLowerCase());
-    }).toList();
+    if (query.isNotEmpty) {
+      List<PengambilanBarang> dummyListData = dummySearchList.where((item) {
+        return item.nik.toLowerCase().contains(query.toLowerCase()) ||
+              item.nama.toLowerCase().contains(query.toLowerCase()) ||
+              item.email.toLowerCase().contains(query.toLowerCase()) ||
+              item.noTelpon.toLowerCase().contains(query.toLowerCase()) ||
+              item.meja.toLowerCase().contains(query.toLowerCase()) ||
+              item.barcode.toLowerCase().contains(query.toLowerCase()) ||
+              item.statusPengambilan.toLowerCase().contains(query.toLowerCase());
+      }).toList();
 
-    setState(() {
-      filteredPengambilanList = dummyListData;
-    });
-  } else {
-    setState(() {
-      filteredPengambilanList = pengambilanList;
-    });
+      setState(() {
+        filteredPengambilanList = dummyListData;
+      });
+    } else {
+      setState(() {
+        filteredPengambilanList = pengambilanList;
+      });
+    }
   }
-}
+
+  Future<void> konfirmasiPengambilan(int id) async {
+    final url = Uri.parse('http://10.0.2.2:8000/api/pengambilan-barang/konfirmasi/$id');
+
+    try {
+      final response = await http.post(url);
+
+      if (response.statusCode == 200) {
+        // Sukses konfirmasi
+        print('Konfirmasi berhasil');
+      } else {
+        // Gagal konfirmasi
+        print('Gagal konfirmasi: ${response.body}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
 
 
   @override
@@ -89,7 +106,7 @@ class _PengambilanBarangPageState extends State<PengambilanBarangPage>{
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Pengambilan Barang', 
-            style: TextStyle(color: Colors.white)),
+            style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
           ],
         ),
       ),
@@ -113,20 +130,12 @@ class _PengambilanBarangPageState extends State<PengambilanBarangPage>{
                       style: TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: 'Cari',
-                        hintStyle: TextStyle(color: Colors.grey),
+                        hintStyle: TextStyle(color: Colors.grey, fontFamily: 'Poppins'),
                         border: InputBorder.none,
                         icon: Icon(Icons.search, color: Colors.orange),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                  ),
-                  child: Text('Buat', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -159,7 +168,7 @@ class _PengambilanBarangPageState extends State<PengambilanBarangPage>{
                               Row(
                               children: [
                                 Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
                                     color: pengambilan.statusPengambilan == 'sudah_diambil' ? const Color.fromARGB(255, 1, 66, 3):
                                           pengambilan.statusPengambilan == 'belum_diambil' ? const Color.fromARGB(255, 66, 59, 0):
@@ -180,9 +189,52 @@ class _PengambilanBarangPageState extends State<PengambilanBarangPage>{
                                     ),
                                   ),
                                 ),
+                                SizedBox(width: 160),
+
+                                if (pengambilan.statusPengambilan == 'belum_diambil')
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    final shouldConfirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: Text('Konfirmasi'),
+                                        content: Text('Apakah Anda yakin ingin mengkonfirmasi penerima ini?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context, false),
+                                            child: Text('Batal'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context, true),
+                                            child: Text('Ya'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+
+                                    if (shouldConfirm == true) {
+                                      await konfirmasiPengambilan(pengambilan.id); // Panggil fungsi konfirmasi
+                                      await fetchPengambilanBarang(); // Fungsi ini seharusnya meng-refresh daftar validasi
+                                      setState(() {}); // Perbarui UI
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Penerima berhasil dikonfirmasi'), backgroundColor: Colors.green),
+                                      );
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.orange,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+                                  ),
+                                  child: Text(
+                                    'Konfirmasi',
+                                    style: TextStyle(color: Colors.white, fontFamily: 'Poppins', fontSize: 12),
+                                  ),
+                                ),
                               ],  
                             ),
-                            SizedBox(height: 6),
                             ],
                           ),
                         );

@@ -23,11 +23,11 @@ class _ValidasiPenerimaPageState extends State<ValidasiPenerimaPage> {
   @override
   void initState() {
     super.initState();
-    fetchPenerima();
+    fetchValidasiPenerima();
   }
 
-  Future<void> fetchPenerima() async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/validasi-penerimaans'));
+  Future<void> fetchValidasiPenerima() async {
+    final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/validasi-penerimaans/'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -44,6 +44,25 @@ class _ValidasiPenerimaPageState extends State<ValidasiPenerimaPage> {
       throw Exception('Gagal memuat data');
     }
   }
+
+  Future<void> konfirmasiValidasi(int id) async {
+    final url = Uri.parse('http://10.0.2.2:8000/api/validasi-penerimaans/konfirmasi/$id');
+
+    try {
+      final response = await http.post(url);
+
+      if (response.statusCode == 200) {
+        // Sukses konfirmasi
+        print('Konfirmasi berhasil');
+      } else {
+        // Gagal konfirmasi
+        print('Gagal konfirmasi: ${response.body}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
 
   void filterSearchResults(String query) {
   List<ValidasiPenerima> dummySearchList = [];
@@ -107,20 +126,12 @@ class _ValidasiPenerimaPageState extends State<ValidasiPenerimaPage> {
                       style: TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: 'Cari',
-                        hintStyle: TextStyle(color: Colors.grey),
+                        hintStyle: TextStyle(color: Colors.grey, fontFamily: 'Poppins'),  
                         border: InputBorder.none,
                         icon: Icon(Icons.search, color: Colors.orange),
                       ),
                     ),
                   ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                  ),
-                  child: Text('Buat', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -149,7 +160,7 @@ class _ValidasiPenerimaPageState extends State<ValidasiPenerimaPage> {
                               Text("NO TELEPON      : ${validasiPenerima.noTelpon}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
                               Text("MEJA            : ${validasiPenerima.meja}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
                               Text("BARCODE         : ${validasiPenerima.barcode}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
-                              SizedBox(height: 8),
+                              SizedBox(height: 16),
                             Row(
                               children: [
                                 Container(
@@ -172,6 +183,49 @@ class _ValidasiPenerimaPageState extends State<ValidasiPenerimaPage> {
                                       : const Color.fromARGB(255, 10, 179, 16), 
                                       fontWeight: FontWeight.bold,
                                     ),
+                                  ),
+                                ),
+                                Spacer(),
+                                if (validasiPenerima.status == 'belum_di_validasi') 
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    final shouldConfirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: Text('Konfirmasi'),
+                                        content: Text('Apakah Anda yakin ingin mengkonfirmasi validasi ini?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context, false),
+                                            child: Text('Batal'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context, true),
+                                            child: Text('Ya'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+
+                                    if (shouldConfirm == true) {
+                                      await konfirmasiValidasi(validasiPenerima.id); // Panggil fungsi konfirmasi
+                                      await fetchValidasiPenerima(); // Fungsi ini seharusnya meng-refresh daftar validasi
+                                      setState(() {}); // Perbarui UI
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Penerima berhasil divalidasi'), backgroundColor: Colors.green),
+                                      );
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.orange,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+                                  ),
+                                  child: Text(
+                                    'Konfirmasi',
+                                    style: TextStyle(color: Colors.white, fontFamily: 'Poppins', fontSize: 12),
                                   ),
                                 ),
                               ],  

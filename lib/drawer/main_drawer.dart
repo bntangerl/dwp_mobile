@@ -89,7 +89,7 @@ class _MainDrawerState extends State<MainDrawer> {
                         TextButton(
                           child: Text('Ya'),
                           onPressed: () {
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginPage()), (route) => false);
                             // Logika untuk logout
                           },
                         ),

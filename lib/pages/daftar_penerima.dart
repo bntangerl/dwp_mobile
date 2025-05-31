@@ -14,6 +14,8 @@ class DaftarPenerimaPage extends StatefulWidget {
 
 class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
 
+  final _formKey = GlobalKey<FormState>();
+
   List<Penerima> penerimaList = [];
   List<Penerima> filteredList = [];
 
@@ -118,56 +120,86 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
     selectedJurusanAdd = null;
     selectedJabatanAdd = null;
 
+    final _formKey = GlobalKey<FormState>();
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Tambah Data Penerima', style: TextStyle(fontFamily: 'Poppins', fontSize: 18),),
+        title: Text('Tambah Data Penerima', style: TextStyle(fontFamily: 'Poppins', fontSize: 18)),
         content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(controller: namaController, decoration: InputDecoration(labelText: 'Nama', labelStyle: TextStyle(fontFamily: 'Poppins'))),
-              TextField(controller: nikController, decoration: InputDecoration(labelText: 'NIK', labelStyle: TextStyle(fontFamily: 'Poppins'))),
-              TextField(controller: emailController, decoration: InputDecoration(labelText: 'Email', labelStyle: TextStyle(fontFamily: 'Poppins'))),
-              TextField(controller: noTelponController, decoration: InputDecoration(labelText: 'No Telepon', labelStyle: TextStyle(fontFamily: 'Poppins'))),
-              Flexible(
-                child: DropdownButtonFormField<Jurusan>(
-                decoration: InputDecoration(labelText: 'Nama Jurusan', labelStyle: TextStyle(fontFamily: 'Poppins')),
-                value: selectedJurusanAdd,
-                onChanged: (value) {
-                  setState(() {
-                    selectedJurusanAdd = value;
-                  });
-                },
-                items: daftarJurusan.map((jurusan) {
-                  return DropdownMenuItem(
-                    value: jurusan,
-                    child: Text(jurusan.namaJurusan),
-                  );
-                }).toList(),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: namaController,
+                  decoration: InputDecoration(labelText: 'Nama', labelStyle: TextStyle(fontFamily: 'Poppins')),
+                  validator: (value) => value == null || value.isEmpty ? 'Nama tidak boleh kosong' : null,
                 ),
-              ),
-              Flexible(
-                child: DropdownButtonFormField<Jabatan>(
-                value: selectedJabatanAdd,
-                items: daftarJabatan.map((jabatan) {
-                  return DropdownMenuItem<Jabatan>(
-                    value: jabatan,
-                    child: Text(jabatan.jabatan),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedJabatanAdd = value;
-                  });
-                },
-                decoration: InputDecoration(
-                  labelText: 'Jabatan',
-                  labelStyle: TextStyle(fontFamily: 'Poppins'),
+                TextFormField(
+                  controller: nikController,
+                  decoration: InputDecoration(labelText: 'NIK', labelStyle: TextStyle(fontFamily: 'Poppins')),
+                  validator: (value) => value == null || value.isEmpty ? 'NIK tidak boleh kosong' : null,
                 ),
+                TextFormField(
+                  controller: emailController,
+                  decoration: InputDecoration(labelText: 'Email', labelStyle: TextStyle(fontFamily: 'Poppins')),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Email tidak boleh kosong';
+                    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                    if (!emailRegex.hasMatch(value)) return 'Format email tidak valid';
+                    return null;
+                  },
                 ),
-              ),
-            ],
+                TextFormField(
+                  controller: noTelponController,
+                  decoration: InputDecoration(labelText: 'No Telepon', labelStyle: TextStyle(fontFamily: 'Poppins')),
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'No Telepon tidak boleh kosong';
+                    }
+                    final phoneRegex = RegExp(r'^[0-9]+$');
+                    if (!phoneRegex.hasMatch(value)) {
+                      return 'Nomor telepon harus berupa angka';
+                    }
+                  },
+                ),
+                DropdownButtonFormField<Jurusan>(
+                  decoration: InputDecoration(labelText: 'Nama Jurusan', labelStyle: TextStyle(fontFamily: 'Poppins')),
+                  value: selectedJurusanAdd,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedJurusanAdd = value;
+                    });
+                  },
+                  validator: (value) => value == null ? 'Pilih jurusan terlebih dahulu' : null,
+                  items: daftarJurusan.map((jurusan) {
+                    return DropdownMenuItem(
+                      value: jurusan,
+                      child: Text(jurusan.namaJurusan),
+                    );
+                  }).toList(),
+                ),
+                DropdownButtonFormField<Jabatan>(
+                  decoration: InputDecoration(labelText: 'Jabatan', labelStyle: TextStyle(fontFamily: 'Poppins')),
+                  value: selectedJabatanAdd,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedJabatanAdd = value;
+                    });
+                  },
+                  validator: (value) => value == null ? 'Pilih jabatan terlebih dahulu' : null,
+                  items: daftarJabatan.map((jabatan) {
+                    return DropdownMenuItem<Jabatan>(
+                      value: jabatan,
+                      child: Text(jabatan.jabatan),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
           ),
         ),
         actions: [
@@ -177,93 +209,95 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
           ),
           ElevatedButton(
             onPressed: () async {
-              Penerima newPenerima = Penerima(
-                id: 0,
-                nik: nikController.text,
-                nama: namaController.text,
-                email: emailController.text,
-                noTelpon: noTelponController.text,
-                jurusanId: selectedJurusanAdd?.id ?? 0,
-                namaJurusan: selectedJurusanAdd?.namaJurusan ?? '',
-                jabatanId: selectedJabatanAdd?.id ?? 0,
-                jabatan: selectedJabatanAdd?.jabatan ?? '',
-              );
+              if (_formKey.currentState!.validate()) {
+                Penerima newPenerima = Penerima(
+                  id: 0,
+                  nik: nikController.text,
+                  nama: namaController.text,
+                  email: emailController.text,
+                  noTelpon: noTelponController.text,
+                  jurusanId: selectedJurusanAdd?.id ?? 0,
+                  namaJurusan: selectedJurusanAdd?.namaJurusan ?? '',
+                  jabatanId: selectedJabatanAdd?.id ?? 0,
+                  jabatan: selectedJabatanAdd?.jabatan ?? '',
+                );
 
-              final response = await http.post(
-                Uri.parse('http://10.0.2.2:8000/api/penerimas'),
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Accept': 'application/json',
-                },
-                body: jsonEncode({
-                  'nik': newPenerima.nik,
-                  'nama': newPenerima.nama,
-                  'email': newPenerima.email,
-                  'no_telpon': newPenerima.noTelpon,
-                  'jurusan_id': newPenerima.jurusanId,
-                  'jabatan_id': newPenerima.jabatanId,
-                }),
-              );
+                final response = await http.post(
+                  Uri.parse('http://10.0.2.2:8000/api/penerimas'),
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                  },
+                  body: jsonEncode({
+                    'nik': newPenerima.nik,
+                    'nama': newPenerima.nama,
+                    'email': newPenerima.email,
+                    'no_telpon': newPenerima.noTelpon,
+                    'jurusan_id': newPenerima.jurusanId,
+                    'jabatan_id': newPenerima.jabatanId,
+                  }),
+                );
 
-              print('Status code: ${response.statusCode}');
-              print('Response body: ${response.body}');
+                print('Status code: ${response.statusCode}');
+                print('Response body: ${response.body}');
 
-              if (response.statusCode == 201 || response.statusCode == 200) {
-                await fetchPenerima();
-
-                if (context.mounted) {
-                  Navigator.of(context).pop(); // Tutup dialog
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Data berhasil ditambahkan'),
-                      backgroundColor: Colors.green,
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                }
-              } else if (response.statusCode == 422) {
-                final body = jsonDecode(response.body);
-                if (context.mounted) {
-                  String errorMsg = '';
-                  if (body['errors'] != null) {
-                    body['errors'].forEach((key, value) {
-                      errorMsg += '$key: ${value[0]}\n';
-                    });
-                  } else {
-                    errorMsg = body['message'] ?? 'Terjadi kesalahan validasi.';
+                if (response.statusCode == 201 || response.statusCode == 200) {
+                  await fetchPenerima();
+                  if (context.mounted) {
+                    Navigator.of(context).pop(); // Tutup dialog
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Data berhasil ditambahkan'),
+                        backgroundColor: Colors.green,
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
                   }
+                } else if (response.statusCode == 422) {
+                  final body = jsonDecode(response.body);
+                  if (context.mounted) {
+                    String errorMsg = '';
+                    if (body['errors'] != null) {
+                      body['errors'].forEach((key, value) {
+                        errorMsg += '$key: ${value[0]}\n';
+                      });
+                    } else {
+                      errorMsg = body['message'] ?? 'Terjadi kesalahan validasi.';
+                    }
 
-                  showDialog(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      title: Text('Validasi Gagal'),
-                      content: Text(errorMsg.trim()),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('Tutup'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-              } else {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Gagal menambahkan data (${response.statusCode})'),
-                      backgroundColor: Colors.red,
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: Text('Validasi Gagal'),
+                        content: Text(errorMsg.trim()),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text('Tutup'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                } else {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Gagal menambahkan data (${response.statusCode})'),
+                        backgroundColor: Colors.red,
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  }
                 }
               }
             },
             child: Text('Simpan', style: TextStyle(fontFamily: 'Poppins')),
-          )
+          ),
         ],
       ),
     );
+
   }
 
 
@@ -287,16 +321,47 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Edit Data Penerima',style: TextStyle(fontFamily: 'Poppins'),),
+        title: Text('Edit Data Penerima', style: TextStyle(fontFamily: 'Poppins')),
         content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(controller: namaController, decoration: InputDecoration(labelText: 'Nama', labelStyle: TextStyle(fontFamily: 'Poppins'))),
-              TextField(controller: nikController, decoration: InputDecoration(labelText: 'NIK', labelStyle: TextStyle(fontFamily: 'Poppins'))),
-              TextField(controller: emailController, decoration: InputDecoration(labelText: 'Email', labelStyle: TextStyle(fontFamily: 'Poppins'))),
-              TextField(controller: noTelponController, decoration: InputDecoration(labelText: 'No Telepon', labelStyle: TextStyle(fontFamily: 'Poppins'))),
-              DropdownButtonFormField<Jurusan>(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: namaController,
+                  decoration: InputDecoration(labelText: 'Nama', labelStyle: TextStyle(fontFamily: 'Poppins')),
+                  validator: (value) => value == null || value.isEmpty ? 'Nama tidak boleh kosong' : null,
+                ),
+                TextFormField(
+                  controller: nikController,
+                  decoration: InputDecoration(labelText: 'NIK', labelStyle: TextStyle(fontFamily: 'Poppins')),
+                  validator: (value) => value == null || value.isEmpty ? 'NIK tidak boleh kosong' : null,
+                ),
+                TextFormField(
+                  controller: emailController,
+                  decoration: InputDecoration(labelText: 'Email', labelStyle: TextStyle(fontFamily: 'Poppins')),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Email tidak boleh kosong';
+                    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                    if (!emailRegex.hasMatch(value)) return 'Format email tidak valid';
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: noTelponController,
+                  decoration: InputDecoration(labelText: 'No Telepon', labelStyle: TextStyle(fontFamily: 'Poppins')),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'No Telepon tidak boleh kosong';
+                    }
+                    final phoneRegex = RegExp(r'^[0-9]+$');
+                    if (!phoneRegex.hasMatch(value)) {
+                      return 'Nomor telepon harus berupa angka';
+                    }
+                  },
+                ),
+                DropdownButtonFormField<Jurusan>(
                   value: selectedJurusanEdit,
                   items: daftarJurusan.map((jurusan) {
                     return DropdownMenuItem(
@@ -310,6 +375,7 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                     });
                   },
                   decoration: InputDecoration(labelText: 'Jurusan'),
+                  validator: (value) => value == null ? 'Pilih jurusan terlebih dahulu' : null,
                 ),
                 DropdownButtonFormField<Jabatan>(
                   value: selectedJabatanEdit,
@@ -325,71 +391,79 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                     });
                   },
                   decoration: InputDecoration(labelText: 'Jabatan'),
+                  validator: (value) => value == null ? 'Pilih jabatan terlebih dahulu' : null,
                 ),
-            ],
+              ],
+            ),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Batal', style: TextStyle(fontFamily: 'Poppins'))),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Batal', style: TextStyle(fontFamily: 'Poppins')),
+          ),
           ElevatedButton(
             onPressed: () async {
-              // Buat objek baru dengan id yang sama (pake penerima.id)
-              Penerima newPenerima = Penerima(
-                id: penerima.id, // penting, id harus dari data asli supaya update tepat
-                nik: nikController.text,
-                nama: namaController.text,
-                email: emailController.text,
-                noTelpon: noTelponController.text,
-                jurusanId: selectedJurusanEdit?.id ?? 0,
-                namaJurusan: selectedJurusanEdit?.namaJurusan ?? '',
-                jabatanId: selectedJabatanEdit?.id ?? 0,
-                jabatan: selectedJabatanEdit?.jabatan ?? '',
-              );
+              if (_formKey.currentState!.validate()) {
+                // Validasi berhasil
+                Penerima newPenerima = Penerima(
+                  id: penerima.id,
+                  nik: nikController.text,
+                  nama: namaController.text,
+                  email: emailController.text,
+                  noTelpon: noTelponController.text,
+                  jurusanId: selectedJurusanEdit?.id ?? 0,
+                  namaJurusan: selectedJurusanEdit?.namaJurusan ?? '',
+                  jabatanId: selectedJabatanEdit?.id ?? 0,
+                  jabatan: selectedJabatanEdit?.jabatan ?? '',
+                );
 
-              // Gunakan HTTP PUT (atau PATCH) ke endpoint dengan id penerima
-              final response = await http.put(
-                Uri.parse('http://10.0.2.2:8000/api/penerimas/${newPenerima.id}'),
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Accept': 'application/json',
-                },
-                body: jsonEncode({
-                  'nik': newPenerima.nik,
-                  'nama': newPenerima.nama,
-                  'email': newPenerima.email,
-                  'no_telpon': newPenerima.noTelpon,
-                  'jurusan_id': newPenerima.jurusanId,
-                  'jabatan_id': newPenerima.jabatanId,
-                }),
-              );
+                final response = await http.put(
+                  Uri.parse('http://10.0.2.2:8000/api/penerimas/${newPenerima.id}'),
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                  },
+                  body: jsonEncode({
+                    'nik': newPenerima.nik,
+                    'nama': newPenerima.nama,
+                    'email': newPenerima.email,
+                    'no_telpon': newPenerima.noTelpon,
+                    'jurusan_id': newPenerima.jurusanId,
+                    'jabatan_id': newPenerima.jabatanId,
+                  }),
+                );
 
-              print('Status code: ${response.statusCode}');
-              print('Response body: ${response.body}');
+                print('Status code: ${response.statusCode}');
+                print('Response body: ${response.body}');
 
-              if (response.statusCode == 200) {
-                await fetchPenerima(); // Refresh data
+                if (response.statusCode == 200) {
+                  await fetchPenerima();
 
-                if (context.mounted) {
-                  Navigator.of(context).pop(); // Tutup dialog
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Data berhasil diperbarui'),
-                      backgroundColor: Colors.green,
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Data berhasil diperbarui'),
+                        backgroundColor: Colors.green,
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                } else {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Gagal mengupdate data'),
+                        backgroundColor: Colors.red,
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  }
                 }
               } else {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Gagal mengupdate data'),
-                      backgroundColor: Colors.red,
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                }
+                // Validasi gagal, tidak kirim request
               }
             },
             child: Text('Simpan', style: TextStyle(fontFamily: 'Poppins')),

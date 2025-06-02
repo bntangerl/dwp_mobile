@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:belajar_flutter/models/daftar_penerima.dart';
 import 'package:belajar_flutter/models/jurusan.dart';
 import 'package:belajar_flutter/models/jabatan.dart';
+import 'package:email_validator/email_validator.dart';
 
 
 class DaftarPenerimaPage extends StatefulWidget {
@@ -139,7 +140,7 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                     if (value == null || value.isEmpty) {
                       return 'Nama tidak boleh kosong';
                     } else if (!RegExp(r'^[a-zA-Z.,\s]+$').hasMatch(value)) {
-                      return 'Nama hanya boleh berisi huruf, spasi, titik, dan koma';
+                      return 'Nama tidak boleh mengandung angka';
                     }
                     return null;
                   },
@@ -151,12 +152,16 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                 ),
                 TextFormField(
                   controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(labelText: 'Email', labelStyle: TextStyle(fontFamily: 'Poppins')),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Email tidak boleh kosong';
-                    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-                    if (!emailRegex.hasMatch(value)) return 'Format email tidak valid';
-                    return null;
+                    if (value == null || value.isEmpty) {
+                      return 'Email tidak boleh kosong';
+                    } else if (!EmailValidator.validate(value)) {
+                      return 'Format email tidak valid';
+                    } else {
+                      return null;
+                    }
                   },
                 ),
                 TextFormField(
@@ -244,9 +249,6 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                     'jabatan_id': newPenerima.jabatanId,
                   }),
                 );
-
-                print('Status code: ${response.statusCode}');
-                print('Response body: ${response.body}');
 
                 if (response.statusCode == 201 || response.statusCode == 200) {
                   await fetchPenerima();
@@ -448,9 +450,6 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                   }),
                 );
 
-                print('Status code: ${response.statusCode}');
-                print('Response body: ${response.body}');
-
                 if (response.statusCode == 200) {
                   await fetchPenerima();
 
@@ -488,25 +487,25 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
   }
 
   void filterSearchResults(String query) {
-  List<Penerima> dummySearchList = [];
-  dummySearchList.addAll(penerimaList);
+    List<Penerima> dummySearchList = [];
+    dummySearchList.addAll(penerimaList);
 
-  if (query.isNotEmpty) {
-    List<Penerima> dummyListData = dummySearchList.where((item) {
-      return item.nama.toLowerCase().contains(query.toLowerCase()) ||
-             item.nik.toLowerCase().contains(query.toLowerCase()) ||
-             item.jabatan.toLowerCase().contains(query.toLowerCase()) ||
-             item.namaJurusan.toLowerCase().contains(query.toLowerCase());
-    }).toList();
-    setState(() {
-        filteredList = dummyListData;
-      });
-    } else {
+    if (query.isNotEmpty) {
+      List<Penerima> dummyListData = dummySearchList.where((item) {
+        return item.nama.toLowerCase().contains(query.toLowerCase()) ||
+              item.nik.toLowerCase().contains(query.toLowerCase()) ||
+              item.jabatan.toLowerCase().contains(query.toLowerCase()) ||
+              item.namaJurusan.toLowerCase().contains(query.toLowerCase());
+      }).toList();
       setState(() {
-        filteredList = penerimaList;
-      });
+          filteredList = dummyListData;
+        });
+      } else {
+        setState(() {
+          filteredList = penerimaList;
+        });
+      }
     }
-  }
 
 
   @override

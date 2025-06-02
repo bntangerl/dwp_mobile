@@ -80,7 +80,6 @@ class _PengambilanBarangPageState extends State<PengambilanBarangPage>{
 
     try {
       final response = await http.post(url);
-
       if (response.statusCode == 200) {
         // Sukses konfirmasi
         print('Konfirmasi berhasil');
@@ -222,7 +221,7 @@ class _PengambilanBarangPageState extends State<PengambilanBarangPage>{
 
                                       if (shouldConfirm == true) {
                                         await konfirmasiPengambilan(pengambilan.id); // Panggil fungsi konfirmasi
-                                        await fetchPengambilanBarang(); // Fungsi ini seharusnya meng-refresh daftar validasi
+                                        await fetchPengambilanBarang(); // Meng-refresh daftar validasi
                                         setState(() {}); // Perbarui UI
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(content: Text('Penerima berhasil dikonfirmasi'), backgroundColor: Colors.green),

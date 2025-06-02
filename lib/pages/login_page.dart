@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'daftar_penerima.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:email_validator/email_validator.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -13,19 +13,15 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage>{
   final TextEditingController emailController = TextEditingController(); 
-  final TextEditingController passwordController = TextEditingController(); 
-  bool isLoading = false; 
+  final TextEditingController passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>(); 
+  bool isLoading = false;  
+  bool _obscurePassword = true;
+
 
   Future<void> login() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Email dan Password wajib diisi')),
-      );
-      return;
-    }
 
     setState(() => isLoading = true);
 
@@ -41,22 +37,41 @@ class _LoginPageState extends State<LoginPage>{
 
     if (response.statusCode == 200 && data['status'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(data['message'] ?? 'Login berhasil'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
-       )
+        SnackBar(
+          content: Text(data['message'] ?? 'Login berhasil'),
+          backgroundColor: Colors.green,
+        ),
       );
 
-        await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(Duration(seconds: 1));
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => DaftarPenerimaPage()),
       );
-    } else {
+    } else if (response.statusCode == 401) {
+      // Login gagal karena email/password salah
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(data['message'] ?? 'Login gagal')),
+        SnackBar(
+          content: Text(data['message'] ?? 'Email atau password salah'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } else if (response.statusCode == 403) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(data['message'] ?? 'Hanya admin yang dapat login'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    } 
+    else {
+      // Error lainnya
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Terjadi kesalahan: ${response.statusCode}'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -64,6 +79,7 @@ class _LoginPageState extends State<LoginPage>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: const Color.fromARGB(255, 21, 21, 21),
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 21, 21, 21),
@@ -74,9 +90,8 @@ class _LoginPageState extends State<LoginPage>{
         padding: EdgeInsets.all(16.0),
 
         child: Form(
-
+          key: _formKey,
           child: Column(
-
             children: [
               SizedBox(height: 150.0),
               Image.asset(
@@ -97,6 +112,15 @@ class _LoginPageState extends State<LoginPage>{
 
               TextFormField(
                 controller: emailController, 
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Email wajib diisi';
+                  } else if (!EmailValidator.validate(value)) {
+                    return 'Format email tidak valid';
+                  } else {
+                    return null;
+                  }
+                },
                 keyboardType: TextInputType.emailAddress,
                 style: TextStyle(color: const Color.fromARGB(255, 160, 160, 160)),
                 decoration: InputDecoration(
@@ -111,7 +135,13 @@ class _LoginPageState extends State<LoginPage>{
 
               TextFormField(
                 controller: passwordController,
-                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Password wajib diisi';
+                  }
+                  return null;
+                },
+                obscureText: _obscurePassword,
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   labelText: 'Password',
@@ -122,12 +152,27 @@ class _LoginPageState extends State<LoginPage>{
                     borderRadius: BorderRadius.circular(20.0),
                     borderSide: BorderSide(color: const Color.fromARGB(255, 96, 96, 96))
                     ),
+                  suffixIcon: IconButton(
+                  icon: Icon(
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
                 ),
-              ),
+                ),
               SizedBox(height: 20.0),
 
               ElevatedButton(
-                onPressed: login,
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    login(); // hanya dipanggil jika validasi sukses
+                  }
+                },
                 child: Text('Login', style: TextStyle(fontFamily: 'Poppins'),),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,

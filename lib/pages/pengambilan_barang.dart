@@ -32,7 +32,7 @@ class _PengambilanBarangPageState extends State<PengambilanBarangPage>{
   }
 
   Future<void> fetchPengambilanBarang() async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/pengambilan-barang'));
+    final response = await http.get(Uri.parse('https://bazardwp-polije.my.id/api/pengambilan-barang'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -76,7 +76,7 @@ class _PengambilanBarangPageState extends State<PengambilanBarangPage>{
   }
 
   Future<void> konfirmasiPengambilan(int id) async {
-    final url = Uri.parse('http://10.0.2.2:8000/api/pengambilan-barang/konfirmasi/$id');
+    final url = Uri.parse('https://bazardwp-polije.my.id/api/pengambilan-barang/konfirmasi/$id');
 
     try {
       final response = await http.post(url);
@@ -141,109 +141,117 @@ class _PengambilanBarangPageState extends State<PengambilanBarangPage>{
             ),
             SizedBox(height: 16),
             // Daftar Penerima
-            isLoading
-                ? CircularProgressIndicator()
-                : Expanded(
-                    child: ListView.builder(
-                      itemCount: filteredPengambilanList.length,
-                      itemBuilder: (context, index) {
-                        final pengambilan = filteredPengambilanList[index];
-                        return Container(
-                          margin: EdgeInsets.only(bottom: 12),
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[900],
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("NIP/NIK/NIPK   : ${pengambilan.nik}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
-                              Text("NAMA           : ${pengambilan.nik}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
-                              Text("EMAIL          : ${pengambilan.email}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
-                              Text("NO. TELEPON    : ${pengambilan.noTelpon}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
-                              Text("MEJA           : ${pengambilan.meja}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
-                              Text("BARCODE        : ${pengambilan.barcode}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
-                              SizedBox(height: 12),
-                              Row(
+            Expanded(
+              child: isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : filteredPengambilanList.isEmpty
+                      ? Center(child: Text('Tidak ada data', style: TextStyle(fontFamily: 'Poppins', color: Colors.white))) 
+                      : ListView.builder(
+                        itemCount: filteredPengambilanList.length,
+                        itemBuilder: (context, index) {
+                          final pengambilan = filteredPengambilanList[index];
+                          return Container(
+                            margin: EdgeInsets.only(bottom: 12),
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[900],
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: pengambilan.statusPengambilan == 'sudah_diambil' ? const Color.fromARGB(255, 1, 66, 3):
-                                          pengambilan.statusPengambilan == 'belum_diambil' ? const Color.fromARGB(255, 66, 59, 0):
-                                          Colors.grey,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    pengambilan.statusPengambilan == 'sudah_diambil'
-                                        ? 'Sudah Diambil'
-                                        : pengambilan.statusPengambilan == 'belum_diambil'
-                                            ? 'Belum Diambil'
-                                            : 'Status Tidak Diketahui',
-                                    style: TextStyle(
-                                      color: pengambilan.statusPengambilan == 'belum_diambil' 
-                                      ? const Color.fromARGB(255, 186, 168, 0) 
-                                      : const Color.fromARGB(255, 10, 179, 16), 
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 160),
-
-                                if (pengambilan.statusPengambilan == 'belum_diambil')
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    final shouldConfirm = await showDialog<bool>(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: Text('Konfirmasi'),
-                                        content: Text('Apakah Anda yakin ingin mengkonfirmasi penerima ini?'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () => Navigator.pop(context, false),
-                                            child: Text('Batal'),
-                                          ),
-                                          TextButton(
-                                            onPressed: () => Navigator.pop(context, true),
-                                            child: Text('Ya'),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-
-                                    if (shouldConfirm == true) {
-                                      await konfirmasiPengambilan(pengambilan.id); // Panggil fungsi konfirmasi
-                                      await fetchPengambilanBarang(); // Fungsi ini seharusnya meng-refresh daftar validasi
-                                      setState(() {}); // Perbarui UI
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Penerima berhasil dikonfirmasi'), backgroundColor: Colors.green),
-                                      );
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.orange,
-                                    shape: RoundedRectangleBorder(
+                                Text("NIP/NIK/NIPK   : ${pengambilan.nik}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                                Text("NAMA           : ${pengambilan.nik}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                                Text("EMAIL          : ${pengambilan.email}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                                Text("NO. TELEPON    : ${pengambilan.noTelpon}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                                Text("MEJA           : ${pengambilan.meja}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                                Text("BARCODE        : ${pengambilan.barcode}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                                SizedBox(height: 12),
+                                Row(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: pengambilan.statusPengambilan == 'sudah_diambil'
+                                          ? const Color.fromARGB(255, 1, 66, 3)
+                                          : pengambilan.statusPengambilan == 'belum_diambil'
+                                              ? const Color.fromARGB(255, 66, 59, 0)
+                                              : pengambilan.statusPengambilan == 'barang_diantar'
+                                                  ? const Color.fromARGB(255, 1, 66, 3) // sama seperti sudah_diambil
+                                                  : Colors.grey,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+                                    child: Text(
+                                      pengambilan.statusPengambilan == 'sudah_diambil'
+                                          ? 'Sudah Diambil'
+                                          : pengambilan.statusPengambilan == 'belum_diambil'
+                                              ? 'Belum Diambil'
+                                              : pengambilan.statusPengambilan == 'barang_diantar'
+                                                  ? 'Barang Diantar'
+                                                  : 'Status Tidak Diketahui',
+                                      style: TextStyle(
+                                        color: pengambilan.statusPengambilan == 'belum_diambil'
+                                            ? const Color.fromARGB(255, 186, 168, 0)
+                                            : const Color.fromARGB(255, 10, 179, 16),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
-                                  child: Text(
-                                    'Konfirmasi',
-                                    style: TextStyle(color: Colors.white, fontFamily: 'Poppins', fontSize: 12),
+                                  SizedBox(width: 160),
+
+                                  if (pengambilan.statusPengambilan == 'belum_diambil')
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      final shouldConfirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text('Konfirmasi'),
+                                          content: Text('Apakah Anda yakin ingin mengkonfirmasi penerima ini?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context, false),
+                                              child: Text('Batal'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context, true),
+                                              child: Text('Ya'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+
+                                      if (shouldConfirm == true) {
+                                        await konfirmasiPengambilan(pengambilan.id); // Panggil fungsi konfirmasi
+                                        await fetchPengambilanBarang(); // Fungsi ini seharusnya meng-refresh daftar validasi
+                                        setState(() {}); // Perbarui UI
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Penerima berhasil dikonfirmasi'), backgroundColor: Colors.green),
+                                        );
+                                      }
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.orange,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+                                    ),
+                                    child: Text(
+                                      'Konfirmasi',
+                                      style: TextStyle(color: Colors.white, fontFamily: 'Poppins', fontSize: 12),
+                                    ),
                                   ),
-                                ),
-                              ],  
+                                ],  
+                              ),
+                              ],
                             ),
-                            ],
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
-                  ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
-}

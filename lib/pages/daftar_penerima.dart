@@ -48,7 +48,7 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
   }
 
   Future<void> fetchPenerima() async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/penerimas'));
+    final response = await http.get(Uri.parse('https://bazardwp-polije.my.id/api/penerimas'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -67,7 +67,7 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
   }
 
   Future<void> fetchJurusan() async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/jurusan'));
+    final response = await http.get(Uri.parse('https://bazardwp-polije.my.id/api/jurusan'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
@@ -83,7 +83,7 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
 
 
   Future<void> fetchJabatan() async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/jabatan'));
+    final response = await http.get(Uri.parse('https://bazardwp-polije.my.id/api/jabatan'));
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
@@ -99,7 +99,7 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
 
 
   Future<void> deletePenerima(int id) async {
-    final url = Uri.parse('http://10.0.2.2:8000/api/penerimas/$id'); // Ganti dengan URL server-mu
+    final url = Uri.parse('https://bazardwp-polije.my.id/api/penerimas/$id'); // Ganti dengan URL server-mu
 
     final response = await http.delete(url);
 
@@ -135,7 +135,14 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                 TextFormField(
                   controller: namaController,
                   decoration: InputDecoration(labelText: 'Nama', labelStyle: TextStyle(fontFamily: 'Poppins')),
-                  validator: (value) => value == null || value.isEmpty ? 'Nama tidak boleh kosong' : null,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Nama tidak boleh kosong';
+                    } else if (!RegExp(r'^[a-zA-Z.,\s]+$').hasMatch(value)) {
+                      return 'Nama hanya boleh berisi huruf, spasi, titik, dan koma';
+                    }
+                    return null;
+                  },
                 ),
                 TextFormField(
                   controller: nikController,
@@ -223,7 +230,7 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                 );
 
                 final response = await http.post(
-                  Uri.parse('http://10.0.2.2:8000/api/penerimas'),
+                  Uri.parse('https://bazardwp-polije.my.id/api/penerimas'),
                   headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
@@ -331,7 +338,14 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                 TextFormField(
                   controller: namaController,
                   decoration: InputDecoration(labelText: 'Nama', labelStyle: TextStyle(fontFamily: 'Poppins')),
-                  validator: (value) => value == null || value.isEmpty ? 'Nama tidak boleh kosong' : null,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Nama tidak boleh kosong';
+                    } else if (!RegExp(r'^[a-zA-Z.,\s]+$').hasMatch(value)) {
+                      return 'Nama hanya boleh berisi huruf, spasi, titik, dan koma';
+                    }
+                    return null;
+                  },
                 ),
                 TextFormField(
                   controller: nikController,
@@ -419,7 +433,7 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                 );
 
                 final response = await http.put(
-                  Uri.parse('http://10.0.2.2:8000/api/penerimas/${newPenerima.id}'),
+                  Uri.parse('https://bazardwp-polije.my.id/api/penerimas/${newPenerima.id}'),
                   headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
@@ -554,82 +568,91 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
             ),
             SizedBox(height: 16),
             // Daftar Penerima
-            isLoading
-                ? CircularProgressIndicator()
-                : Expanded(
-                    child: ListView.builder(
-                      itemCount: filteredList.length,
-                      itemBuilder: (context, index) {
-                        final penerima = filteredList[index];
-                        return Container(
-                          margin: EdgeInsets.only(bottom: 12),
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 33, 33, 33),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("NAMA            : ${penerima.nama}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
-                              Text("NIP/NIK/NIPPK   : ${penerima.nik}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
-                              Text("JABATAN    : ${penerima.jabatan}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
-                              Text("UNIT/JURUSAN         : ${penerima.namaJurusan}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
-                              SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  ElevatedButton(
-                                    child: Text('Hapus', style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red),
-                                      onPressed: () async {
-                                      final confirm = await showDialog(
-                                        context: context,
-                                        builder: (context) => AlertDialog(
-                                          title: Text('Konfirmasi', style: TextStyle(fontFamily: 'Poppins')),
-                                          content: Text('Apakah Anda yakin ingin menghapus data ini?', style: TextStyle(fontFamily: 'Poppins')),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => Navigator.of(context).pop(false),
-                                              child: Text('Batal', style: TextStyle(fontFamily: 'Poppins')),
-                                            ),
-                                            TextButton(
-                                              onPressed: () => Navigator.of(context).pop(true),
-                                              child: Text('Hapus', style: TextStyle(fontFamily: 'Poppins')),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                      if (confirm == true) {
-                                        await deletePenerima(penerima.id);
-                                        setState(() {
-                                          filteredList.removeAt(index);
-                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Data berhasil dihapus'), backgroundColor: Colors.red));
-                                        });
-                                      }
-                                    },
+              Expanded(
+                  child: isLoading
+                      ? Center(child: CircularProgressIndicator())
+                      : filteredList.isEmpty
+                          ? Center(
+                              child: Text(
+                                'Tidak ada data penerima',
+                                style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+                              ),
+                            )
+                          : Container(
+                            child: ListView.builder(
+                              itemCount: filteredList.length,
+                              itemBuilder: (context, index) {
+                                final penerima = filteredList[index];
+                                return Container(
+                                  margin: EdgeInsets.only(bottom: 12),
+                                  padding: EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: const Color.fromARGB(255, 33, 33, 33),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                  SizedBox(width: 10),
-                                  ElevatedButton(
-                                    child: Text('Edit', style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.orange),
-                                      onPressed: () {
-                                      _showEditDialog(penerima, index);
-                                    },                                    
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text("NAMA            : ${penerima.nama}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                                      Text("NIP/NIK/NIPPK   : ${penerima.nik}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                                      Text("JABATAN    : ${penerima.jabatan}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                                      Text("UNIT/JURUSAN         : ${penerima.namaJurusan}", style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                                      SizedBox(height: 8),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          ElevatedButton(
+                                            child: Text('Hapus', style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.red),
+                                              onPressed: () async {
+                                              final confirm = await showDialog(
+                                                context: context,
+                                                builder: (context) => AlertDialog(
+                                                  title: Text('Konfirmasi', style: TextStyle(fontFamily: 'Poppins')),
+                                                  content: Text('Apakah Anda yakin ingin menghapus data ini?', style: TextStyle(fontFamily: 'Poppins')),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () => Navigator.of(context).pop(false),
+                                                      child: Text('Batal', style: TextStyle(fontFamily: 'Poppins')),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () => Navigator.of(context).pop(true),
+                                                      child: Text('Hapus', style: TextStyle(fontFamily: 'Poppins')),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                              if (confirm == true) {
+                                                await deletePenerima(penerima.id);
+                                                setState(() {
+                                                  filteredList.removeAt(index);
+                                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Data berhasil dihapus'), backgroundColor: Colors.red));
+                                                });
+                                              }
+                                            },
+                                          ),
+                                          SizedBox(width: 10),
+                                          ElevatedButton(
+                                            child: Text('Edit', style: TextStyle(color: Colors.white, fontFamily: 'Poppins')),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.orange),
+                                              onPressed: () {
+                                              _showEditDialog(penerima, index);
+                                            },                                    
+                                          ),
+                                        ],
+                                      )
+                                    ],
                                   ),
-                                ],
-                              )
-                            ],
+                                );
+                              },
+                            ),
                           ),
-                        );
-                      },
-                    ),
-                  ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+                      ),
+                  ],
+                ),
+              ),
+            );
+          }
+        }

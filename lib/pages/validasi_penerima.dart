@@ -27,7 +27,7 @@ class _ValidasiPenerimaPageState extends State<ValidasiPenerimaPage> {
   }
 
   Future<void> fetchValidasiPenerima() async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8000/api/validasi-penerimaans/'));
+    final response = await http.get(Uri.parse('https://bazardwp-polije.my.id/api/validasi-penerimaans'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -137,9 +137,15 @@ class _ValidasiPenerimaPageState extends State<ValidasiPenerimaPage> {
             ),
             SizedBox(height: 16),
             // Daftar Penerima
-            isLoading
-                ? CircularProgressIndicator()
-                : Expanded(
+            Expanded(
+              child: isLoading
+                ? Center(child: CircularProgressIndicator())
+                : validasiPenerimaList.isEmpty
+                ? Center(
+                    child: Text(
+                      'Tidak ada data validasi penerima',
+                      style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),))
+                  : Expanded(
                     child: ListView.builder(
                       itemCount: filteredList.length,
                       itemBuilder: (context, index) {
@@ -236,6 +242,7 @@ class _ValidasiPenerimaPageState extends State<ValidasiPenerimaPage> {
                       },
                     ),
                   ),
+            ),
           ],
         ),
       ),

@@ -30,7 +30,7 @@ class _LoginPageState extends State<LoginPage>{
     setState(() => isLoading = true);
 
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:8000/api/login'), // Ganti IP jika pakai device
+      Uri.parse('https://bazardwp-polije.my.id/api/login'), // Ganti IP jika pakai device
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'password': password}),
     );

@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage>{
     setState(() => isLoading = true);
 
     final response = await http.post(
-      Uri.parse('https://bazardwp-polije.my.id/api/login'), // Ganti IP jika pakai device
+      Uri.parse('http://10.0.2.2:8000/api/login'), // Ganti IP jika pakai device
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'password': password}),
     );
@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage>{
     if (response.statusCode == 200 && data['status'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(data['message'] ?? 'Login berhasil'),
+          content: Text(data['message']),
           backgroundColor: Colors.green,
         ),
       );
@@ -53,14 +53,14 @@ class _LoginPageState extends State<LoginPage>{
       // Login gagal karena email/password salah
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(data['message'] ?? 'Email atau password salah'),
+          content: Text(data['message']),
           backgroundColor: Colors.red,
         ),
       );
     } else if (response.statusCode == 403) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(data['message'] ?? 'Hanya admin yang dapat login'),
+          content: Text(data['message']),
           backgroundColor: Colors.orange,
         ),
       );

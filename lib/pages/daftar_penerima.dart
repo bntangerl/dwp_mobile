@@ -98,7 +98,6 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
     }
   }
 
-
   Future<void> deletePenerima(int id) async {
     final url = Uri.parse('https://bazardwp-polije.my.id/api/penerimas/$id'); // Ganti dengan URL server-mu
 
@@ -147,9 +146,11 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                 ),
                 TextFormField(
                   controller: nikController,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(labelText: 'NIK', labelStyle: TextStyle(fontFamily: 'Poppins')),
                   validator: (value) => value == null || value.isEmpty ? 'NIK tidak boleh kosong' : null,
                 ),
+
                 TextFormField(
                   controller: emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -344,13 +345,14 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                     if (value == null || value.isEmpty) {
                       return 'Nama tidak boleh kosong';
                     } else if (!RegExp(r'^[a-zA-Z.,\s]+$').hasMatch(value)) {
-                      return 'Nama hanya boleh berisi huruf, spasi, titik, dan koma';
+                      return 'Nama tidak boleh mengandung angka';
                     }
                     return null;
                   },
                 ),
                 TextFormField(
                   controller: nikController,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(labelText: 'NIK', labelStyle: TextStyle(fontFamily: 'Poppins')),
                   validator: (value) => value == null || value.isEmpty ? 'NIK tidak boleh kosong' : null,
                 ),
@@ -366,6 +368,7 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                 ),
                 TextFormField(
                   controller: noTelponController,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(labelText: 'No Telepon', labelStyle: TextStyle(fontFamily: 'Poppins')),
                   validator: (value) {
                     if (value == null || value.isEmpty) {

@@ -46,7 +46,7 @@ class _ValidasiPenerimaPageState extends State<ValidasiPenerimaPage> {
   }
 
   Future<void> konfirmasiValidasi(int id) async {
-    final url = Uri.parse('http://10.0.2.2:8000/api/validasi-penerimaans/konfirmasi/$id');
+    final url = Uri.parse('https://bazardwp-polije.my.id/api/validasi-penerimaans/konfirmasi/$id');
 
     try {
       final response = await http.post(url);

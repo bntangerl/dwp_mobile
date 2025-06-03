@@ -21,7 +21,7 @@ class PengambilanBarang {
 
   factory PengambilanBarang.fromJson(Map<String, dynamic> json) {
     return PengambilanBarang(
-      id: json['id'],  // ambil id dari json
+      id: json['id'], 
       nik: json['nik'],
       nama: json['nama'],
       email: json['email'],

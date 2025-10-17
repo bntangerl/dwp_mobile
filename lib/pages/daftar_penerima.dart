@@ -351,6 +351,8 @@ class _DaftarPenerimaPageState extends State<DaftarPenerimaPage> {
                   },
                 ),
                 TextFormField(
+
+                  // ADD DIALOG MEMILIKI VALIDATOR YANG SAMA DENGAN EDIT DIALOG
                   controller: nikController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(labelText: 'NIK', labelStyle: TextStyle(fontFamily: 'Poppins')),

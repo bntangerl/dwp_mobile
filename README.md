@@ -1,6 +1,6 @@
 # DWP Polije Mobile
 
-A new Flutter project.
+DWP POLIJE Mobile adalah Sebuah aplikasi berbasis mobile untuk manajemen dan monitoring bazar pada salah satu organisasi yang berada di Politeknik Negeri Jember yaitu Dharma Wanita Persatuan.
 
 ## Getting Started
 
